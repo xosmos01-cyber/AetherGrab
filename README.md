@@ -62,3 +62,7 @@
 ## 📄 License
 
 This project is licensed under the [MIT License](LICENSE).
+
+---
+
+Package Version: 2.6.0
