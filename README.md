@@ -65,4 +65,4 @@ This project is licensed under the [MIT License](LICENSE).
 
 ---
 
-Package Version: 2.6.0
+Package Version: 2.6.1

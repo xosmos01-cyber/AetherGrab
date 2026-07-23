@@ -6,7 +6,7 @@ export default function Titlebar({
   engineStatus,
   onUpdateYtdlp,
   updating,
-  appVersion = '2.6.0',
+  appVersion = '2.6.1',
   onCheckAppUpdate,
   checkingAppUpdate,
   updateAvailableInfo,
