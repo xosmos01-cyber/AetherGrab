@@ -1,8 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Minus, Square, Copy, X, Download, ShieldCheck, Cpu, RefreshCw } from 'lucide-react';
+import { Minus, Square, Copy, X, Download, ShieldCheck, Cpu, RefreshCw, Sparkles } from 'lucide-react';
 import appLogo from '../assets/icon.png';
 
-export default function Titlebar({ engineStatus, onUpdateYtdlp, updating }) {
+export default function Titlebar({
+  engineStatus,
+  onUpdateYtdlp,
+  updating,
+  appVersion = '2.5.0',
+  onCheckAppUpdate,
+  checkingAppUpdate,
+  updateAvailableInfo,
+  onOpenUpdateModal
+}) {
   const [isMaximized, setIsMaximized] = useState(false);
 
   useEffect(() => {
@@ -37,7 +46,7 @@ export default function Titlebar({ engineStatus, onUpdateYtdlp, updating }) {
           AetherGrab
         </span>
         <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">
-          PRO v2.5
+          PRO v{appVersion}
         </span>
       </div>
 
@@ -52,6 +61,27 @@ export default function Titlebar({ engineStatus, onUpdateYtdlp, updating }) {
           <span className="text-neutral-600">•</span>
           <span className="text-purple-400 font-mono text-[10px]">Deno: {engineStatus?.deno ? 'Prepacked' : 'Available'}</span>
         </div>
+
+        {updateAvailableInfo ? (
+          <button
+            onClick={onOpenUpdateModal}
+            className="flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-[11px] font-semibold border border-blue-400/40 shadow-[0_0_12px_rgba(59,130,246,0.5)] animate-pulse transition-all cursor-pointer"
+            title="Click to view update details"
+          >
+            <Sparkles className="w-3.5 h-3.5 fill-current" />
+            <span>Update v{updateAvailableInfo.version} Available</span>
+          </button>
+        ) : (
+          <button
+            onClick={onCheckAppUpdate}
+            disabled={checkingAppUpdate}
+            className="flex items-center space-x-1 px-2.5 py-1 rounded-full bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 text-[11px] text-neutral-300 hover:text-white transition-colors disabled:opacity-50"
+            title="Check for AetherGrab updates"
+          >
+            <RefreshCw className={`w-3 h-3 ${checkingAppUpdate ? 'animate-spin text-blue-400' : ''}`} />
+            <span>{checkingAppUpdate ? 'Checking...' : 'Check Update'}</span>
+          </button>
+        )}
 
         <button
           onClick={onUpdateYtdlp}

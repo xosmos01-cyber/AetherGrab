@@ -5,6 +5,7 @@ import MetadataCard from './components/MetadataCard';
 import TimecodeCard from './components/TimecodeCard';
 import ProgressCard from './components/ProgressCard';
 import LibraryCard from './components/LibraryCard';
+import UpdateModal from './components/UpdateModal';
 
 const HISTORY_STORAGE_KEY = 'aethergrab_media_history_v1';
 
@@ -40,11 +41,23 @@ export default function App() {
   const [updatingYtdlp, setUpdatingYtdlp] = useState(false);
   const [statusNotification, setStatusNotification] = useState('');
 
+  // App Auto-Updater State
+  const [appVersion, setAppVersion] = useState('2.5.0');
+  const [updateInfo, setUpdateInfo] = useState(null);
+  const [isDownloadingUpdate, setIsDownloadingUpdate] = useState(false);
+  const [appUpdateProgress, setAppUpdateProgress] = useState(null);
+  const [isUpdateReady, setIsUpdateReady] = useState(false);
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
+  const [checkingAppUpdate, setCheckingAppUpdate] = useState(false);
+
   // Load Saved State & History on Mount
   useEffect(() => {
     if (window.aetherGrab) {
       window.aetherGrab.getDefaultFolder().then(setOutputFolder);
       window.aetherGrab.getBinaryVersions().then(setEngineStatus);
+      if (window.aetherGrab.getAppVersion) {
+        window.aetherGrab.getAppVersion().then(setAppVersion);
+      }
 
       // Listen for stdout and download events
       const removeOutput = window.aetherGrab.onDownloadOutput(({ downloadId, text }) => {
@@ -92,6 +105,36 @@ export default function App() {
         showNotification(msg);
       });
 
+      // App Auto-Updater Event Listeners
+      const removeAppUpdateAvailable = window.aetherGrab.onAppUpdateAvailable((info) => {
+        setUpdateInfo(info);
+        setShowUpdateModal(true);
+        showNotification(`New update available: v${info.version}`);
+      });
+
+      const removeAppUpdateProgress = window.aetherGrab.onAppUpdateProgress((progress) => {
+        setIsDownloadingUpdate(true);
+        setAppUpdateProgress(progress);
+      });
+
+      const removeAppUpdateDownloaded = window.aetherGrab.onAppUpdateDownloaded((info) => {
+        setIsDownloadingUpdate(false);
+        setIsUpdateReady(true);
+        showNotification(`Update v${info.version || '2.6.0'} ready to install!`);
+      });
+
+      const removeAppUpdateError = window.aetherGrab.onAppUpdateError((errMsg) => {
+        setIsDownloadingUpdate(false);
+        setCheckingAppUpdate(false);
+      });
+
+      // Automatic update check 3 seconds after load
+      const autoCheckTimer = setTimeout(() => {
+        if (window.aetherGrab.checkForAppUpdates) {
+          window.aetherGrab.checkForAppUpdates().catch(() => {});
+        }
+      }, 3000);
+
       return () => {
         removeOutput();
         removeProgress();
@@ -99,6 +142,11 @@ export default function App() {
         removeCancelled();
         removeComplete();
         removeUpdateStatus();
+        removeAppUpdateAvailable();
+        removeAppUpdateProgress();
+        removeAppUpdateDownloaded();
+        removeAppUpdateError();
+        clearTimeout(autoCheckTimer);
       };
     }
   }, []);
@@ -221,6 +269,41 @@ export default function App() {
     localStorage.removeItem(HISTORY_STORAGE_KEY);
   };
 
+  const handleCheckAppUpdate = async () => {
+    if (!window.aetherGrab || checkingAppUpdate) return;
+    setCheckingAppUpdate(true);
+    try {
+      const res = await window.aetherGrab.checkForAppUpdates();
+      if (res && res.devNotice) {
+        await window.aetherGrab.simulateAppUpdate('2.6.0');
+      } else if (!res) {
+        showNotification('AetherGrab is up to date.');
+      }
+    } catch (e) {
+      showNotification('Update check error: ' + e.message);
+    } finally {
+      setCheckingAppUpdate(false);
+    }
+  };
+
+  const handleStartDownloadAppUpdate = async () => {
+    if (!window.aetherGrab) return;
+    setIsDownloadingUpdate(true);
+    setAppUpdateProgress({ percent: 0 });
+    try {
+      await window.aetherGrab.downloadAppUpdate();
+    } catch (e) {
+      setIsDownloadingUpdate(false);
+      showNotification('Failed to start update download: ' + e.message);
+    }
+  };
+
+  const handleRestartAndInstall = () => {
+    if (window.aetherGrab) {
+      window.aetherGrab.restartAndInstall();
+    }
+  };
+
   return (
     <div className="h-screen w-screen flex flex-col bg-[#09090b] text-neutral-100 overflow-hidden font-sans">
       {/* Titlebar Header */}
@@ -228,6 +311,11 @@ export default function App() {
         engineStatus={engineStatus}
         onUpdateYtdlp={handleUpdateYtdlp}
         updating={updatingYtdlp}
+        appVersion={appVersion}
+        onCheckAppUpdate={handleCheckAppUpdate}
+        checkingAppUpdate={checkingAppUpdate}
+        updateAvailableInfo={updateInfo}
+        onOpenUpdateModal={() => setShowUpdateModal(true)}
       />
 
       {/* Notification Toast */}
@@ -301,6 +389,19 @@ export default function App() {
           />
         </div>
       </div>
+
+      {/* In-App Auto-Update Modal Popup */}
+      <UpdateModal
+        isOpen={showUpdateModal}
+        onClose={() => setShowUpdateModal(false)}
+        currentVersion={appVersion}
+        updateInfo={updateInfo}
+        isDownloading={isDownloadingUpdate}
+        downloadProgress={appUpdateProgress}
+        isUpdateReady={isUpdateReady}
+        onStartDownload={handleStartDownloadAppUpdate}
+        onRestartAndInstall={handleRestartAndInstall}
+      />
     </div>
   );
 }

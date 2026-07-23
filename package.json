@@ -1,6 +1,6 @@
 {
   "name": "aethergrab",
-  "version": "1.0.0",
+  "version": "2.5.0",
   "description": "AetherGrab - High-Performance Windows Desktop Media Downloader",
   "main": "src-electron/main.js",
   "scripts": {
@@ -24,6 +24,7 @@
   "license": "MIT",
   "dependencies": {
     "clsx": "^2.1.1",
+    "electron-updater": "^6.8.9",
     "framer-motion": "^12.42.2",
     "lucide-react": "^0.454.0",
     "react": "^18.3.1",
@@ -45,12 +46,16 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/aethergrab/aethergrab.git"
+    "url": "https://github.com/xosmos01-cyber/AetherGrab.git"
   },
   "build": {
     "appId": "com.aethergrab.app",
     "productName": "AetherGrab",
-    "publish": null,
+    "publish": {
+      "provider": "github",
+      "owner": "xosmos01-cyber",
+      "repo": "AetherGrab"
+    },
     "directories": {
       "output": "release"
     },

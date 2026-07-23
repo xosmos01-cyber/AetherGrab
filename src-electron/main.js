@@ -4,13 +4,43 @@ const fs = require('fs');
 const os = require('os');
 const mediaEngine = require('./mediaEngine');
 const binaryManager = require('./binaryManager');
+const { autoUpdater } = require('electron-updater');
 
 // High-DPI and multi-monitor scaling switches
 app.commandLine.appendSwitch('high-dpi-support', '1');
 app.commandLine.appendSwitch('force-device-scale-factor', '1');
 
+// Configure AutoUpdater
+autoUpdater.autoDownload = false;
+autoUpdater.autoInstallOnAppQuit = true;
+
 let mainWindow = null;
 const activeDownloadMap = new Map(); // downloadId -> cancelFunction
+
+// AutoUpdater Event Forwarding
+autoUpdater.on('checking-for-update', () => {
+  if (mainWindow) mainWindow.webContents.send('app-update-checking');
+});
+
+autoUpdater.on('update-available', (info) => {
+  if (mainWindow) mainWindow.webContents.send('app-update-available', info);
+});
+
+autoUpdater.on('update-not-available', (info) => {
+  if (mainWindow) mainWindow.webContents.send('app-update-not-available', info);
+});
+
+autoUpdater.on('error', (err) => {
+  if (mainWindow) mainWindow.webContents.send('app-update-error', err ? err.message : 'Unknown updater error');
+});
+
+autoUpdater.on('download-progress', (progressObj) => {
+  if (mainWindow) mainWindow.webContents.send('app-update-progress', progressObj);
+});
+
+autoUpdater.on('update-downloaded', (info) => {
+  if (mainWindow) mainWindow.webContents.send('app-update-downloaded', info);
+});
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -169,6 +199,76 @@ ipcMain.on('media-cancel-download', (event, downloadId) => {
   if (cancel) {
     cancel();
     activeDownloadMap.delete(downloadId);
+  }
+});
+
+// App Auto-Updater IPC Handlers
+ipcMain.handle('app-get-version', () => {
+  return app.getVersion();
+});
+
+ipcMain.handle('app-check-for-updates', async () => {
+  if (!app.isPackaged) {
+    try {
+      const result = await autoUpdater.checkForUpdates();
+      return result ? result.updateInfo : null;
+    } catch (e) {
+      return { devNotice: true, message: e.message };
+    }
+  } else {
+    try {
+      const result = await autoUpdater.checkForUpdates();
+      return result ? result.updateInfo : null;
+    } catch (e) {
+      throw new Error('Update check failed: ' + e.message);
+    }
+  }
+});
+
+ipcMain.handle('app-download-update', async () => {
+  if (!app.isPackaged) {
+    let progress = 0;
+    const interval = setInterval(() => {
+      progress += 20;
+      if (mainWindow) {
+        mainWindow.webContents.send('app-update-progress', {
+          percent: progress,
+          bytesPerSecond: 1024 * 1024 * 3.5,
+          transferred: progress * 200000,
+          total: 20000000
+        });
+      }
+      if (progress >= 100) {
+        clearInterval(interval);
+        if (mainWindow) {
+          mainWindow.webContents.send('app-update-downloaded', {
+            version: '2.6.0',
+            releaseNotes: 'Simulated Update 2.6.0 successfully downloaded!'
+          });
+        }
+      }
+    }, 400);
+    return true;
+  }
+  return autoUpdater.downloadUpdate();
+});
+
+ipcMain.handle('app-restart-and-install', () => {
+  if (!app.isPackaged) {
+    app.relaunch();
+    app.exit(0);
+  } else {
+    autoUpdater.quitAndInstall(false, true);
+  }
+});
+
+ipcMain.handle('app-dev-simulate-update', (event, version = '2.6.0') => {
+  if (mainWindow) {
+    mainWindow.webContents.send('app-update-available', {
+      version: version,
+      releaseNotes: '🚀 Version 2.6.0 Release Highlights:\n- Enhanced parallel chunk downloading engine.\n- Updated yt-dlp DPAPI cookie decryptor.\n- Sleek glassmorphism UI & performance optimizations.',
+      releaseDate: new Date().toISOString()
+    });
   }
 });
 

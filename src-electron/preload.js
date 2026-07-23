@@ -63,5 +63,36 @@ contextBridge.exposeInMainWorld('aetherGrab', {
     const handler = (event, data) => callback(data);
     ipcRenderer.on('download-cancelled-event', handler);
     return () => ipcRenderer.removeListener('download-cancelled-event', handler);
+  },
+
+  // App Auto-Updater Methods
+  getAppVersion: () => ipcRenderer.invoke('app-get-version'),
+  checkForAppUpdates: () => ipcRenderer.invoke('app-check-for-updates'),
+  downloadAppUpdate: () => ipcRenderer.invoke('app-download-update'),
+  restartAndInstall: () => ipcRenderer.invoke('app-restart-and-install'),
+  simulateAppUpdate: (version) => ipcRenderer.invoke('app-dev-simulate-update', version),
+
+  onAppUpdateAvailable: (callback) => {
+    const handler = (event, data) => callback(data);
+    ipcRenderer.on('app-update-available', handler);
+    return () => ipcRenderer.removeListener('app-update-available', handler);
+  },
+
+  onAppUpdateProgress: (callback) => {
+    const handler = (event, data) => callback(data);
+    ipcRenderer.on('app-update-progress', handler);
+    return () => ipcRenderer.removeListener('app-update-progress', handler);
+  },
+
+  onAppUpdateDownloaded: (callback) => {
+    const handler = (event, data) => callback(data);
+    ipcRenderer.on('app-update-downloaded', handler);
+    return () => ipcRenderer.removeListener('app-update-downloaded', handler);
+  },
+
+  onAppUpdateError: (callback) => {
+    const handler = (event, data) => callback(data);
+    ipcRenderer.on('app-update-error', handler);
+    return () => ipcRenderer.removeListener('app-update-error', handler);
   }
 });
