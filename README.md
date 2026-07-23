@@ -1,3 +1,9 @@
+<p align="center">
+  <a href="public/icon.png" target="_blank">
+    <img src="public/icon.png" alt="AetherGrab Logo" width="120" style="border-radius: 12px;">
+  </a>
+</p>
+
 <div align="center">
 
 ### AetherGrab: High-Performance Windows Desktop Media Downloader
@@ -10,12 +16,6 @@
 [![FFmpeg](https://img.shields.io/badge/FFmpeg-Media--Processing-007800?style=flat-square&logo=ffmpeg&logoColor=white)](https://ffmpeg.org)
 
 <p>A modern, high-performance Windows desktop media downloader built with Electron, React, and Tailwind CSS. Powered by yt-dlp and FFmpeg, it delivers fast video and audio extraction across 1,000+ web platforms with a glassmorphic Bento Grid interface.</p>
-
-<p align="center">
-  <a href="public/icon.png" target="_blank">
-    <img src="public/icon.png" alt="AetherGrab Logo" width="120" style="border-radius: 12px;">
-  </a>
-</p>
 
 ---
 </div>
