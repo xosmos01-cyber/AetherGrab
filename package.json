@@ -1,6 +1,6 @@
 {
   "name": "aethergrab",
-  "version": "2.5.0",
+  "version": "2.6.0",
   "description": "AetherGrab - High-Performance Windows Desktop Media Downloader",
   "main": "src-electron/main.js",
   "scripts": {
