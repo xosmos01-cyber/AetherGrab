@@ -64,7 +64,7 @@
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/xosmos01-cyber/AetherGrab.git
+   git clone https://github.com/Yavagu/AetherGrab.git
    cd AetherGrab
    ```
 

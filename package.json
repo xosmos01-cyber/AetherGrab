@@ -46,14 +46,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/xosmos01-cyber/AetherGrab.git"
+    "url": "https://github.com/Yavagu/AetherGrab.git"
   },
   "build": {
     "appId": "com.aethergrab.app",
     "productName": "AetherGrab",
     "publish": {
       "provider": "github",
-      "owner": "xosmos01-cyber",
+      "owner": "Yavagu",
       "repo": "AetherGrab"
     },
     "directories": {
