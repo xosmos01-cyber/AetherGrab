@@ -1,0 +1,79 @@
+{
+  "name": "aethergrab",
+  "version": "1.0.0",
+  "description": "AetherGrab - High-Performance Windows Desktop Media Downloader",
+  "main": "src-electron/main.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "electron:dev": "concurrently \"vite\" \"wait-on http://localhost:5173 && electron .\"",
+    "electron:start": "electron .",
+    "electron:build": "vite build && electron-builder"
+  },
+  "keywords": [
+    "yt-dlp",
+    "downloader",
+    "electron",
+    "react",
+    "bento-grid",
+    "media",
+    "ffmpeg"
+  ],
+  "author": "AetherGrab Team",
+  "license": "MIT",
+  "dependencies": {
+    "clsx": "^2.1.1",
+    "framer-motion": "^12.42.2",
+    "lucide-react": "^0.454.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tailwind-merge": "^2.5.4"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.3",
+    "autoprefixer": "^10.4.20",
+    "concurrently": "^9.1.0",
+    "electron": "^33.2.0",
+    "electron-builder": "^26.15.3",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.15",
+    "vite": "^5.4.11",
+    "wait-on": "^8.0.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/aethergrab/aethergrab.git"
+  },
+  "build": {
+    "appId": "com.aethergrab.app",
+    "productName": "AetherGrab",
+    "publish": null,
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "src-electron/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "src-electron/bin",
+        "to": "bin",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "icon": "public/icon.png",
+    "win": {
+      "icon": "public/icon.png",
+      "target": [
+        "nsis",
+        "portable"
+      ]
+    }
+  }
+}
