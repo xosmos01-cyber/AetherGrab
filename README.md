@@ -3,7 +3,6 @@
     <img src="public/icon.png" alt="AetherGrab Logo" width="120" style="border-radius: 12px;">
   </a>
 </p>
-
 <div align="center">
 
 ### AetherGrab: High-Performance Windows Desktop Media Downloader
